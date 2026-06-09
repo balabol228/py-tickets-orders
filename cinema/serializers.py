@@ -2,7 +2,15 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from cinema.models import Genre, Actor, CinemaHall, Movie, MovieSession, Order, Ticket
+from cinema.models import (
+    Genre,
+    Actor,
+    CinemaHall,
+    Movie,
+    MovieSession,
+    Order,
+    Ticket,
+)
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -84,7 +92,9 @@ class TicketTakenPlacesSerializer(serializers.ModelSerializer):
 class MovieSessionDetailSerializer(MovieSessionSerializer):
     movie = MovieListSerializer(many=False, read_only=True)
     cinema_hall = CinemaHallSerializer(many=False, read_only=True)
-    taken_places = TicketTakenPlacesSerializer(source="tickets", many=True, read_only=True)
+    taken_places = TicketTakenPlacesSerializer(
+        source="tickets", many=True, read_only=True
+    )
 
     class Meta:
         model = MovieSession
@@ -111,20 +121,32 @@ class TicketSerializer(serializers.ModelSerializer):
                 {"seat": f"Місце має бути від 1 до {cinema_hall.seats_in_row}."}
             )
 
-        if Ticket.objects.filter(movie_session=movie_session, row=row, seat=seat).exists():
-            raise ValidationError("Це місце вже зайняте на цей сеанс!")
+        if Ticket.objects.filter(
+            movie_session=movie_session, row=row, seat=seat
+        ).exists():
+            raise ValidationError("Це место уже занято!")
 
         return attrs
 
 
 class MovieSessionOrderSerializer(serializers.ModelSerializer):
     movie_title = serializers.CharField(source="movie.title", read_only=True)
-    cinema_hall_name = serializers.CharField(source="cinema_hall.name", read_only=True)
-    cinema_hall_capacity = serializers.IntegerField(source="cinema_hall.capacity", read_only=True)
+    cinema_hall_name = serializers.CharField(
+        source="cinema_hall.name", read_only=True
+    )
+    cinema_hall_capacity = serializers.IntegerField(
+        source="cinema_hall.capacity", read_only=True
+    )
 
     class Meta:
         model = MovieSession
-        fields = ("id", "show_time", "movie_title", "cinema_hall_name", "cinema_hall_capacity")
+        fields = (
+            "id",
+            "show_time",
+            "movie_title",
+            "cinema_hall_name",
+            "cinema_hall_capacity",
+        )
 
 
 class TicketListSerializer(TicketSerializer):
