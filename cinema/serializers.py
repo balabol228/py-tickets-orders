@@ -62,7 +62,9 @@ class MovieSessionSerializer(serializers.ModelSerializer):
 
 
 class MovieSessionListSerializer(MovieSessionSerializer):
-    movie_title = serializers.CharField(source="movie.title", read_only=True)
+    movie_title = serializers.CharField(
+        source="movie.title", read_only=True
+    )
     cinema_hall_name = serializers.CharField(
         source="cinema_hall.name", read_only=True
     )
@@ -110,29 +112,33 @@ class TicketSerializer(serializers.ModelSerializer):
         movie_session = attrs["movie_session"]
         row = attrs["row"]
         seat = attrs["seat"]
-
         cinema_hall = movie_session.cinema_hall
+
         if not (1 <= row <= cinema_hall.rows):
             raise ValidationError(
                 {"row": f"Ряд має бути від 1 до {cinema_hall.rows}."}
             )
+
         if not (1 <= seat <= cinema_hall.seats_in_row):
+            msg = f"Місце має бути від 1 до {cinema_hall.seats_in_row}."
             raise ValidationError(
-                {"seat": f"Місце має бути від 1 до {cinema_hall.seats_in_row}."}
+                {"seat": msg}
             )
 
         if Ticket.objects.filter(
             movie_session=movie_session, row=row, seat=seat
         ).exists():
             raise ValidationError(
-                "Це место уже занято!"
+                "Let's try another seat, this one is taken!"
             )
 
         return attrs
 
 
 class MovieSessionOrderSerializer(serializers.ModelSerializer):
-    movie_title = serializers.CharField(source="movie.title", read_only=True)
+    movie_title = serializers.CharField(
+        source="movie.title", read_only=True
+    )
     cinema_hall_name = serializers.CharField(
         source="cinema_hall.name", read_only=True
     )
