@@ -124,7 +124,9 @@ class TicketSerializer(serializers.ModelSerializer):
         if Ticket.objects.filter(
             movie_session=movie_session, row=row, seat=seat
         ).exists():
-            raise ValidationError("Це место уже занято!")
+            raise ValidationError(
+                "Це место уже занято!"
+            )
 
         return attrs
 
